@@ -1,5 +1,6 @@
 using System;
 using Akka.Actor;
+using WinTail.Messages;
 
 namespace WinTail
 {
@@ -10,30 +11,38 @@ namespace WinTail
     class ConsoleReaderActor : UntypedActor
     {
         public const string ExitCommand = "exit";
-        private IActorRef _consoleWriterActor;
+		public const string StartCommand = "start";
+        private IActorRef _validationActor;
 
-        public ConsoleReaderActor(IActorRef consoleWriterActor)
+		public ConsoleReaderActor(IActorRef validationActor)
         {
-            _consoleWriterActor = consoleWriterActor;
+			_validationActor = validationActor;
         }
 
         protected override void OnReceive(object message)
         {
-            var read = Console.ReadLine();
-            if (!string.IsNullOrEmpty(read) && String.Equals(read, ExitCommand, StringComparison.OrdinalIgnoreCase))
-            {
-                // shut down the system (acquire handle to system via
-                // this actors context)
-                Context.System.Terminate();
-                return;
-            }
+			if (message.Equals(StartCommand))
+			{
+				DoPrintInstructions();
+			}
 
-            // send input to the console writer to process and print
-            // YOU NEED TO FILL IN HERE
-
-            // continue reading messages from the console
-            // YOU NEED TO FILL IN HERE
+			GetAndValidateInput();
         }
+
+		private void DoPrintInstructions()
+		{
+			Console.WriteLine("please provide filename inside this local execution folder or an absolute path.\n");
+		}
+
+		private void GetAndValidateInput() {
+			
+			var message = Console.ReadLine();
+
+			if (!string.IsNullOrEmpty(message) && String.Equals(message, ExitCommand, StringComparison.OrdinalIgnoreCase))
+				Context.System.Terminate();
+			else
+				_validationActor.Tell (message);
+		}
 
     }
 }
