@@ -26,13 +26,13 @@ namespace WinTail
 			var validation = 
 				MyActorSystem
 					.ActorOf(
-						Props.Create<FileValidatorActor>(consoleWriter, tailCoordinator),"validation");
+						Props.Create<FileValidatorActor>(consoleWriter),"validation");
 
 
 			var consoleReader = 
 				MyActorSystem
 					.ActorOf(
-						Props.Create<ConsoleReaderActor>(validation),"reader");
+						Props.Create<ConsoleReaderActor>(),"reader");
 
 
 			consoleReader.Tell(ConsoleReaderActor.StartCommand);
