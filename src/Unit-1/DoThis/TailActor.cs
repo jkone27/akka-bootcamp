@@ -43,28 +43,37 @@ namespace WinTail
 		}
 
 
-		private readonly string _filePath;
-		private readonly string _fullFilePath;
+		private readonly string _filePath, _fullFilePath;
 		private readonly IActorRef _reporterActor;
-		private readonly FileObserver _observer;
+		private FileObserver _observer;
+		private FileStream _fileStream;
+		private StreamReader _fileStreamReader;
 
 		public TailActor(IActorRef reporterActor, string filePath)
 		{
 			_reporterActor = reporterActor;
 			_filePath = filePath;
 			_fullFilePath = Path.GetFullPath (_filePath);
+		}
+
+		protected override void PreStart(){
+		
 			_observer = new FileObserver(Self, _fullFilePath);
 			_observer.Start();
 
-			var text = File.ReadAllText(_fullFilePath);
-			Self.Tell(new InitialRead(_filePath, text));
+			_fileStream = new FileStream(_fullFilePath,
+				FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+			_fileStreamReader = new StreamReader(_fileStream, Encoding.UTF8);
+
+			Self.Tell(new InitialRead(_filePath, _fileStreamReader.ReadToEnd()));
+		
 		}
 
 		protected override void OnReceive(object message)
 		{
 			if (message is FileWrite)
 			{
-				var text = File.ReadAllText(_fullFilePath);
+				var text = _fileStreamReader.ReadToEnd();
 				if (!string.IsNullOrEmpty(text))
 				{
 					_reporterActor.Tell(text);
@@ -81,6 +90,15 @@ namespace WinTail
 				var ir = message as InitialRead;
 				_reporterActor.Tell(ir.Text);
 			}
+		}
+
+		protected override void PostStop()
+		{
+			_observer.Dispose();
+			_observer = null;
+			_fileStreamReader.Close();
+			_fileStreamReader.Dispose();
+			base.PostStop();
 		}
 	}
 }
