@@ -3,11 +3,11 @@ using Akka.Actor;
 
 namespace WinTail
 {
-	public class TailCoordinatorActor : UntypedActor
+	public class Coordinator : UntypedActor
 	{
-		public class StartTail
+		public class Start
 		{
-			public StartTail(string filePath, IActorRef reporterActor)
+			public Start(string filePath, IActorRef reporterActor)
 			{
 				FilePath = filePath;
 				ReporterActor = reporterActor;
@@ -18,9 +18,9 @@ namespace WinTail
 			public IActorRef ReporterActor { get; private set; }
 		}
 
-		public class StopTail
+		public class Stop
 		{
-			public StopTail(string filePath)
+			public Stop(string filePath)
 			{
 				FilePath = filePath;
 			}
@@ -30,9 +30,9 @@ namespace WinTail
 			
 		protected override void OnReceive(object message)
 		{
-			if (message is StartTail)
+			if (message is Start)
 			{
-				var msg = message as StartTail;
+				var msg = message as Start;
 				// here we are creating our first parent/child relationship!
 				Context.ActorOf(Props.Create(
 					() => new TailActor(msg.ReporterActor, msg.FilePath)));
@@ -45,13 +45,11 @@ namespace WinTail
 				10, // maxNumberOfRetries
 				TimeSpan.FromSeconds(30),
 				x => 
-				{
-					if (x is ArithmeticException) return Directive.Resume;
-
-					else if (x is NotSupportedException) return Directive.Stop;
-
-					else return Directive.Restart;
-				});
+                    x is ArithmeticException ? 
+                        Directive.Resume :
+				    x is NotSupportedException ? 
+                        Directive.Stop :
+                    Directive.Restart);
 		}
 	}
 }

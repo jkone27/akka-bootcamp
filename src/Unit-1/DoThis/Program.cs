@@ -20,7 +20,7 @@ namespace WinTail
 						Props.Create<ConsoleWriterActor>(),"writer");
 
 			var tailCoordinator =
-				MyActorSystem.ActorOf (Props.Create<TailCoordinatorActor> (), "tailCoordinator");
+				MyActorSystem.ActorOf (Props.Create<Coordinator> (), "tailCoordinator");
 			
 
 			var validation = 

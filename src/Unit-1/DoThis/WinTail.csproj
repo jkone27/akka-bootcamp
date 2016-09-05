@@ -59,7 +59,7 @@
     <Compile Include="Messages.cs" />
     <Compile Include="FileValidatorActor.cs" />
     <Compile Include="FileObserver.cs" />
-    <Compile Include="TailCoordinatorActor.cs" />
+    <Compile Include="Coordinator.cs" />
     <Compile Include="TailActor.cs" />
   </ItemGroup>
   <ItemGroup>
