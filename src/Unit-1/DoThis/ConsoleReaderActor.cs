@@ -1,13 +1,8 @@
 using System;
 using Akka.Actor;
-using WinTail.Messages;
 
 namespace WinTail
 {
-    /// <summary>
-    /// Actor responsible for reading FROM the console. 
-    /// Also responsible for calling <see cref="ActorSystem.Terminate"/>.
-    /// </summary>
     class ConsoleReaderActor : UntypedActor
     {
         public const string ExitCommand = "exit";

@@ -26,11 +26,13 @@ namespace WinTail
 			// uncomment next line if you're running on Mono!
 			Environment.SetEnvironmentVariable("MONO_MANAGED_WATCHER", "enabled");
 
-			_watcher = new FileSystemWatcher(_fileDir, _fileNameOnly);
+		    _watcher = new FileSystemWatcher(_fileDir, _fileNameOnly)
+		    {
+		        NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite
+		    };
 
-			_watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite;
 
-			_watcher.Changed += OnFileChanged;
+		    _watcher.Changed += OnFileChanged;
 			_watcher.Error += OnFileError;
 
 			_watcher.EnableRaisingEvents = true;
